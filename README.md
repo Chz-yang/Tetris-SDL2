@@ -1,0 +1,13 @@
+- Bitmap
+  - bool setHeight(int height);
+  - bool setWidth(int width);
+  - unsigned int getHeight() const;
+  - unsigned int getWidth() const;
+  - bool convertToBmp(std::string bmp_file_name, RGB **image, int, int);
+- Window
+  - draw();
+- Tetromino
+  - rotate();	// 90度顺时针旋转
+  - bool moveLeft();
+  - bool moveRight();
+  - bool moveDown();
