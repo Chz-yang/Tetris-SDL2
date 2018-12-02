@@ -2,23 +2,7 @@
 #define BMP_HPP
 
 #include "bitmap_image.hpp"
-#include <string>
-
-struct RGB {
-    RGB(unsigned char red, unsigned char green, unsigned char blue) 
-    : red(red), green(green), blue(blue) {}
-    unsigned char red, green, blue;
-    const bool operator== (const RGB &a) {
-        return (red == a.red && green == a.green && blue == a.blue);
-    }
-    const bool operator!= (const RGB &a) {
-        return !(*this == a);
-    }
-};
-
-const RGB kWhite_color = RGB(255, 255, 255);
-const RGB kBlack_color = RGB(0, 0, 0);
-const RGB kBlue_color = RGB(0, 0, 255);
+#include "RGB.hpp"
 
 class Bitmap {
 public:
