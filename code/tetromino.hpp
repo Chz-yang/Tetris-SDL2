@@ -5,22 +5,9 @@
 #include <map>
 using std::map;
 
-struct Square {
-    Square() {}
-    Square(unsigned int x, unsigned int y, const RGB &color) {
-        reset(x, y, color);
-    }
-    void reset(unsigned int x, unsigned int y, const RGB &color) {
-        this->x = x; this->y = y; this->color = color;
-    }
-    unsigned int x, y;
-    RGB color;
-};
-
-
 class Tetromino {
 public:
-    Tetromino() {}
+    Tetromino();
     ~Tetromino() {}
     Tetromino(char type);
     bool setSquares(char type);
@@ -29,10 +16,11 @@ public:
     bool moveRight();
     bool moveDown();
 private:
-    void init();
+    void initAllTypesCoordinates();
     void rotate(char type);
-    char type;
     map<char, int (*)[4][2]> all_types_init_coordinates;
+    char type;
+    RGB color;
     int coordinates[4][2];
     int turn_index;
 };

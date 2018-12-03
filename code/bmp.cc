@@ -42,9 +42,9 @@ bool Bitmap::convertToBmp(std::string bmp_file_name, RGB **image,
     this->image.setwidth_height(getWidth() + 0.05 * width_scale, 
                                 getHeight() + 0.05 * height_scale);
 
-    for (int row = 0; row < image_height; row++) {
-        for (int col = 0; col < image_width; col++) {
-            zoomOut(col, row, width_scale, height_scale, image[row][col]);
+    for (int x = 0; x < image_width; x++) {
+        for (int y = 0; y < image_height; y++) {
+            zoomOut(x, y, width_scale, height_scale, image[x][y]);
         }
     }
     setFrame(image, image_width, image_height, 
@@ -52,39 +52,39 @@ bool Bitmap::convertToBmp(std::string bmp_file_name, RGB **image,
     this->image.save_image(bmp_file_name);
 }
 
-void Bitmap::zoomOut(int col, int row, int width_scale, int height_scale,
+void Bitmap::zoomOut(int x, int y, int width_scale, int height_scale,
                      const RGB &color) {
-    for (int y= row * height_scale; y < (row + 1) * height_scale; y++) {
-        for (int x = col * width_scale; x < (col + 1) * width_scale; x++) {
-            this->image.set_pixel(x, y, color);
+    for (int i = x * width_scale; i < (x + 1) * width_scale; i++) {
+        for (int j = y * height_scale; j < (y + 1) * height_scale; j++) {
+            this->image.set_pixel(i, j, color);
         }
     }
 }
 
 void Bitmap::setFrame(RGB **image, int image_width, int image_height, 
                       int width_scale, int height_scale, const RGB &color) {
-    for (int row = 0; row < image_height; row++) {
-        for (int col = 0; col < image_width; col++) {
-            if (image[row][col] != kBlack_color) {
-                addFrame(col, row, width_scale, height_scale, color);
+    for (int x = 0; x < image_width; x++) {
+        for (int y = 0; y < image_height; y++) {
+            if (image[x][y] != kBlack_color) {
+                addFrame(x, y, width_scale, height_scale, color);
             }
         }
     }
 }
 
-void Bitmap::addFrame(int col, int row, int width_scale, int height_scale, 
+void Bitmap::addFrame(int x, int y, int width_scale, int height_scale, 
                       const RGB &color) {
-    for (int y = row * height_scale; y < (row + 0.05) * height_scale; y++) {
-        for (int x = col * width_scale; x < (col + 1.05) * width_scale; x++) {
-            this->image.set_pixel(x, y, color);
-            this->image.set_pixel(x, y + height_scale, color);
+    for (int i = x * width_scale; i < (x + 1.05) * width_scale; i++) {
+        for (int j = y * height_scale; j < (y + 0.05) * height_scale; j++) {
+            this->image.set_pixel(i, j, color);
+            this->image.set_pixel(i, j + height_scale, color);
         }
     }
 
-    for (int y = row * height_scale; y < (row + 1.05) * height_scale; y++) {
-        for (int x = col * width_scale; x < (col + 0.05) * width_scale; x++) {
-            this->image.set_pixel(x, y, color);
-            this->image.set_pixel(x + width_scale, y, color);
+    for (int i = x * width_scale; i < (x + 0.05) * width_scale; i++) {
+        for (int j = y * height_scale; j < (y + 1.05) * height_scale; j++) {
+            this->image.set_pixel(i, j, color);
+            this->image.set_pixel(i + width_scale, j, color);
         }
     }
 }

@@ -6,10 +6,10 @@ struct RGB {
     RGB(unsigned char red, unsigned char green, unsigned char blue) 
     : red(red), green(green), blue(blue) {}
     unsigned char red, green, blue;
-    const bool operator== (const RGB &a) {
+    const bool operator== (const RGB &a) const {
         return (red == a.red && green == a.green && blue == a.blue);
     }
-    const bool operator!= (const RGB &a) {
+    const bool operator!= (const RGB &a) const {
         return !(*this == a);
     }
 };

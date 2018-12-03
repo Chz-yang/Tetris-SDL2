@@ -2,17 +2,32 @@
 
 #include <string>
 #include <vector>
+#include <stdint.h>
+#include <algorithm>
 #include <iostream>
 using std::make_pair;
 using std::vector;
 
+Tetromino::Tetromino() {
+    initAllTypesCoordinates();
+}
+
 Tetromino::Tetromino(char type) {
+    initAllTypesCoordinates();
     setSquares(type);
 };
 
 bool Tetromino::setSquares(char type) {
     this->type = type = toupper(type);
-    init();
+    this->turn_index = rand() % 4;
+    int x_dis = INT32_MAX, y_dis = INT32_MAX;
+    for (int i = 0; i < 4; i++) {
+        int tmp = (type == 'I' and this->turn_index % 2 == 1 ? 7 : 6);
+        x_dis = std::min(x_dis, tmp - 
+                this->all_types_init_coordinates[type][this->turn_index][i][0]);
+        y_dis = std::min(y_dis, 19 - 
+                this->all_types_init_coordinates[type][this->turn_index][i][1]);
+    }
 }
 
 void Tetromino::rotate(int times) {
@@ -81,7 +96,7 @@ bool Tetromino::moveDown() {
     return true;
 }
 
-void Tetromino::init() {
+void Tetromino::initAllTypesCoordinates() {
     int S[][4][2] = {
         {{0, 0}, {1, 0}, {1, 1}, {2, 1}},
         {{0, 1}, {0, 2}, {1, 0}, {1, 1}},
@@ -122,7 +137,6 @@ void Tetromino::init() {
         {{0, 0}, {0, 1}, {0, 2}, {1, 1}},
     };
 
-    this->all_types_init_coordinates.clear();
     this->all_types_init_coordinates.insert(make_pair('S', S));
     this->all_types_init_coordinates.insert(make_pair('Z', Z));
     this->all_types_init_coordinates.insert(make_pair('L', L));
