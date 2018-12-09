@@ -13,12 +13,12 @@ public:
     bool setWidth(int width);
     unsigned int getHeight() const;
     unsigned int getWidth() const;
-    bool convertToBmp(std::string bmp_file_name, RGB **image, int, int);
+    bool convertToBmp(std::string bmp_file_name, RGB **pixels, int, int);
 private:
     void zoomOut(int, int, int, int, const RGB &color);
     void setFrame(RGB **, int, int, int, int, const RGB &color);
     void addFrame(int, int, int, int, const RGB &color);
-    bitmap_image image;
+    bitmap_image pixels;
 };
 
 #endif

@@ -1,7 +1,8 @@
 
 
 # My configurations:
-*.bmp
+test.bmp
+temple.bmp
 *.o
 *.out
 .vscode

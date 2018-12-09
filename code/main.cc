@@ -1,47 +1,49 @@
 #include "RGB.hpp"
 #include "bmp.hpp"
 #include "window.hpp"
+#include "image.hpp"
+#include "tetromino.hpp"
 #include <SDL2/SDL.h>
+#include <unistd.h>
 #include <iostream>
 using std::cout;
 using std::endl;
-const int kXDim = 10, kYDim = 20;
 
 bool isGameOver();
 
 int main(int argc, char const* argv[]) {
-    RGB **image = (RGB**)malloc(sizeof(RGB*) * kXDim);
-    for (int x = 0; x < kXDim; x++) {
-        image[x] = (RGB*)malloc(sizeof(RGB) * kYDim);
-        for (int y = 0; y < kYDim; y++) {
-            image[x][y] = kBlack_color;
+    Image image;
+    Window window("Tetris");
+
+    Tetromino tetromino(&window, image);
+    SDL_Event my_event;
+    tetromino.setType('J');
+    bool quit = false;
+    int count = 0;
+    while (!quit) {
+        if (SDL_PollEvent(&my_event)) {
+            switch (my_event.type) {
+                case SDL_QUIT:
+                    quit = true;
+                    break;
+                case SDL_KEYDOWN:
+                    string key = SDL_GetKeyName(my_event.key.keysym.sym);
+                    if (key != "Space") {
+                        tetromino.move(key);
+                    } else {
+                        tetromino.rotate();
+                    }
+                    break;
+            }
+        } else {
+            usleep(50 * 1000);
+            count++;
+            if (count == 20) {
+                tetromino.move("Down");
+                count = 0;
+            }
         }
     }
-    // image[4][0] = kBlue_color;
-    // image[5][0] = kBlue_color;
-
-    Bitmap test(400, 800);
-    test.convertToBmp("../resource/img/test.bmp", image, 10, 20);
-
-    SDL_Init(SDL_INIT_VIDEO);
-    SDL_Window* g_window = NULL;
-    SDL_Surface* g_screen_surface = NULL;
-    g_window = SDL_CreateWindow("Tetris", SDL_WINDOWPOS_UNDEFINED, 
-                           SDL_WINDOWPOS_UNDEFINED, 400, 800, SDL_WINDOW_SHOWN);
-    g_screen_surface = SDL_GetWindowSurface(g_window);
-
-    Window window;
-    window.draw(g_screen_surface, "../resource/img/test.bmp");
-
-    SDL_UpdateWindowSurface(g_window);
-    SDL_Delay(1000);
-    SDL_DestroyWindow(g_window);
-    SDL_Quit();
-    
-    for (int x = 0; x < kXDim; x++) {
-        free(image[x]);
-    }
-    free(image);
 
     return 0;
 }
