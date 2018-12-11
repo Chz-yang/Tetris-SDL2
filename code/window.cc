@@ -39,7 +39,7 @@ bool Window::draw(string bmp_file_name) {
 }
 
 bool Window::draw(const Image &image) {
-    static string tmp_bmp_file_name = "/home/yang/Desktop/SDL/Tetris-SDL2/resource/imgtemple.bmp";
+    static string tmp_bmp_file_name = "../resource/img/temple.bmp";
     Bitmap bmp(400, 800);
     bmp.convertToBmp(tmp_bmp_file_name, image.getPixels(), 10, 20);
 
