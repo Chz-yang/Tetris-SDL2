@@ -9,26 +9,25 @@ using std::map;
 
 class Tetromino {
   public:
-    Tetromino(Window* window, Image &image);
+    Tetromino(Window* window, Image *image);
     ~Tetromino() {}
-    Tetromino(Window* window, Image &image, char type);
-    bool setType(char type);
-    void rotate(int times = 0);
-    bool move(string direction);
-    bool moveLeft();
-    bool moveRight();
-    bool moveDown();
+    Tetromino(Window* window, Image *image, char type);
+    void newTetromino();
+    int move(string key);
 
   private:
-    void initAllTypesCoordinates();
-    void rotate(char type);
+    int rotate();
+    int moveLeft();
+    int moveRight();
+    int moveDown();
     int getNumOfTypeCoordinates(char type);
     int getTypeCoordinates(char type, int turn_index, int row, int col);
-    void flashScreen() const ;
-    void mixIntoImage();
+    void flashScreen(Image *image);
+    int isValid(int x, int y);
+    bool setType(char type);
 
   private:
-    Image &image;
+    Image *image;
     Window *window;
     char type;
     RGB color;

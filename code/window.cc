@@ -8,7 +8,6 @@ Window::Window(string window_name, int width, int height) {
                                     SDL_WINDOWPOS_UNDEFINED,
                                     width, height,
                                     SDL_WINDOW_SHOWN);
-    // this->surface = SDL_GetWindowSurface(this->window);
     this->renderer = SDL_CreateRenderer(this->window, 
                                         -1, 
                                         SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
@@ -30,18 +29,17 @@ bool Window::draw(string bmp_file_name) {
         return false;
     }
 
-    this->texture = SDL_CreateTextureFromSurface(renderer, bmp_surface);
+    SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, bmp_surface);
     SDL_RenderClear(renderer);
     SDL_RenderCopy(renderer, texture, NULL, NULL);
     SDL_RenderPresent(renderer);
-    // SDL_BlitSurface(bmp_surface, NULL, surface, &rect);
-    // SDL_UpdateWindowSurfaceRects(this->window, &rect, 1);
     SDL_FreeSurface(bmp_surface);
+    SDL_DestroyTexture(texture);
     return true;
 }
 
 bool Window::draw(const Image &image) {
-    static string tmp_bmp_file_name = "../resource/img/temple.bmp";
+    static string tmp_bmp_file_name = "/home/yang/Desktop/SDL/Tetris-SDL2/resource/imgtemple.bmp";
     Bitmap bmp(400, 800);
     bmp.convertToBmp(tmp_bmp_file_name, image.getPixels(), 10, 20);
 

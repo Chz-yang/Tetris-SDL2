@@ -8,7 +8,7 @@ using std::make_pair;
 using std::vector;
 
 const int S[][4][2] = {
-    {{4, 0}, {4, 0}, {5, -1}, {6, -1}},
+    {{4, 0}, {5, 0}, {5, -1}, {6, -1}},
     {{4, -1}, {4, -2}, {5, 0}, {5, -1}},
 };
 
@@ -44,14 +44,14 @@ const int T[][4][2] = {
     {{4, -1}, {5, 0}, {5, -1}, {6, -1}},
     {{4, -1}, {5, 0}, {5, -1}, {5, -2}},
     {{4, 0}, {5, 0}, {5, -1}, {6, 0}},
-    {{4, 0}, {0, -1}, {0, -2}, {5, -1}},
+    {{4, 0}, {4, -1}, {4, -2}, {5, -1}},
 };
 
-Tetromino::Tetromino(Window* window, Image &image)
+Tetromino::Tetromino(Window* window, Image *image)
     : window(window), image(image) {
 }
 
-Tetromino::Tetromino(Window* window, Image &image, char type)
+Tetromino::Tetromino(Window* window, Image *image, char type)
     : window(window), image(image) {
     setType(type);
 }
@@ -65,58 +65,78 @@ bool Tetromino::setType(char type) {
         this->coordinates[i][0] = getTypeCoordinates(type, turn_index, i, 0);
         this->coordinates[i][1] = getTypeCoordinates(type, turn_index, i, 1);
     }
-
-    flashScreen();
 }
 
-void Tetromino::rotate(int times) {
-    times = times % 4;
-
-    for (size_t i = 0; i <= times; i++) {
-        rotate(this->type);
-    }
-}
-
-void Tetromino::rotate(char type) {
+int Tetromino::rotate() {
     /* 将方块进行顺时针旋转 90° */
+    int new_turn_index;
+    int new_coordinates[4][2];
     int x_dis = this->coordinates[0][0] -
                 getTypeCoordinates(type, turn_index, 0, 0);
     int y_dis = this->coordinates[0][1] -
                 getTypeCoordinates(type, turn_index, 0, 1);
-    this->turn_index = (this->turn_index + 1) % getNumOfTypeCoordinates(type);
+    new_turn_index = (this->turn_index + 1) % getNumOfTypeCoordinates(type);
 
     int cross_board_dis_x = 0, cross_board_dis_y = 0;
     for (int i = 0; i < 4; i++) {
-        this->coordinates[i][0] = x_dis +
-                                  getTypeCoordinates(type, turn_index, i, 0);
-        this->coordinates[i][1] = y_dis +
-                                  getTypeCoordinates(type, turn_index, i, 1);
+        new_coordinates[i][0] = x_dis +
+                                getTypeCoordinates(type, new_turn_index, i, 0);
+        new_coordinates[i][1] = y_dis +
+                                getTypeCoordinates(type, new_turn_index, i, 1);
         cross_board_dis_x = std::max(cross_board_dis_x, coordinates[i][0] - 9);
+        if (isValid(new_coordinates[i][0], new_coordinates[i][1]) != 0) {
+            // can not rotate, return false
+            return 1;
+        }
     }
 
-    if (cross_board_dis_x > 0) {
+    // can rotate, accept this rotate
+    this->turn_index = new_turn_index;
+    for (int i = 0; i < 4; i++) {
+        this->coordinates[i][0] = new_coordinates[i][0];
+        this->coordinates[i][1] = new_coordinates[i][1];
+    }
+
+    while (cross_board_dis_x > 0) {
         moveLeft();
+        cross_board_dis_x--;
     }
 
-    flashScreen();
+    return 0;
 }
 
-bool Tetromino::move(string direction) {
-    if (direction == "Right") {
-        return moveRight();
-    } else if (direction == "Left") {
-        return moveLeft();
-    } else if (direction == "Down") {
-        return moveDown();
+int Tetromino::move(string key) {
+    int flag = 0;
+    if (key == "Right") {
+        // move right
+        flag = moveRight();
+    } else if (key == "Left") {
+        // move left
+        flag = moveLeft();
+    } else if (key == "Down") {
+        // move down
+        flag = moveDown();
+    } else if (key == "Space") { 
+        // rotate
+        flag = rotate();
     }
-    return false;
+    if (flag == 0) {
+        Image new_image(*this->image);
+        flashScreen(&new_image);
+    } else if (flag == 2) {
+        // can not move down 
+        flashScreen(this->image);
+    }
+
+    return flag;
 }
 
-bool Tetromino::moveLeft() {
+int Tetromino::moveLeft() {
     for (size_t i = 0; i < 4; i++) {
-        if (this->coordinates[i][0] == 0) {
+        int x = this->coordinates[i][0], y = this->coordinates[i][1];
+        if (x == 0 || isValid(x - 1, y) == 2) {
             // 已经碰壁，无法继续左移
-            return false;
+            return 1;
         }
     }
 
@@ -124,15 +144,15 @@ bool Tetromino::moveLeft() {
         this->coordinates[i][0] -= 1;
     }
 
-    flashScreen();
-    return true;
+    return 0;
 }
 
-bool Tetromino::moveRight() {
+int Tetromino::moveRight() {
     for (size_t i = 0; i < 4; i++) {
-        if (this->coordinates[i][0] == 9) {
+        int x = this->coordinates[i][0], y = this->coordinates[i][1];
+        if (x == 9 || isValid(x + 1, y) == 2) {
             // 已经碰壁，无法继续右移
-            return false;
+            return 1;
         }
     }
 
@@ -140,15 +160,17 @@ bool Tetromino::moveRight() {
         this->coordinates[i][0] += 1;
     }
 
-    flashScreen();
-    return true;
+    return 0;
 }
 
-bool Tetromino::moveDown() {
+int Tetromino::moveDown() {
     for (size_t i = 0; i < 4; i++) {
-        if (this->coordinates[i][1] == 19) {
+        int x = this->coordinates[i][0], y = this->coordinates[i][1];
+        if (isValid(x, y + 1) == 2) {
+            return 2;
+        } else if (y == 19) {
             // 已经碰壁，无法继续下移
-            return false;
+            return 2;
         }
     }
 
@@ -156,8 +178,7 @@ bool Tetromino::moveDown() {
         this->coordinates[i][1] += 1;
     }
 
-    flashScreen();
-    return true;
+    return 0;
 }
 
 int Tetromino::getTypeCoordinates(char type, int turn_index, int row, int col) {
@@ -212,19 +233,34 @@ int Tetromino::getNumOfTypeCoordinates(char type) {
     }
 }
 
-void Tetromino::flashScreen() const {
-    Image new_image = this->image; // copy a new image
-
+void Tetromino::flashScreen(Image *img) {
     for (int i = 0; i < 4; i++) {
         int x = this->coordinates[i][0], y = this->coordinates[i][1];
 
         if (x >= 0 && x < kXDim && y >= 0 && y < kYDim) {
-            new_image[x][y] = this->color;
+            (*img)[x][y] = this->color;
         }
     }
 
-    this->window->draw(new_image);
+    this->window->draw(*img);
 }
 
-void Tetromino::mixIntoImage() {
+int Tetromino::isValid(int x, int y) {
+    if (x < 0 || x >= kXDim || y >= kYDim) {
+        return 1;
+    }
+
+    if ((*this->image)[x][y] != kBlack_color) {
+        return 2;
+    }
+
+    return 0;
+}
+
+void Tetromino::newTetromino() {
+    static char tetromino_type[] = {'S', 'Z', 'L', 'J', 'I', 'O', 'T'};
+    int type_count = sizeof(tetromino_type) / sizeof(char);
+    srand(time(NULL));
+    int type_index = rand() % type_count;
+    setType(tetromino_type[type_index]);
 }

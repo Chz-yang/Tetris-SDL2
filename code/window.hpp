@@ -15,15 +15,10 @@ class Window {
     SDL_Window* getWindow() {
         return window;
     }
-    SDL_Surface* getSurface() {
-        return surface;
-    }
 
   private:
     SDL_Window* window;
-    SDL_Surface* surface;
     SDL_Texture* texture;
-    // SDL_Rect rect;
     SDL_Renderer* renderer;
 };
 
