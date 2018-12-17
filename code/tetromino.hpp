@@ -12,7 +12,7 @@ class Tetromino {
     Tetromino(Window* window, Image *image);
     ~Tetromino() {}
     Tetromino(Window* window, Image *image, char type);
-    void newTetromino();
+    bool newTetromino();
     int move(string key);
 
   private:

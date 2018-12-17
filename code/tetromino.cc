@@ -32,7 +32,7 @@ const int J[][4][2] = {
 };
 
 const int I[][4][2] = {
-    {{4, 0}, {4, -1}, {4, -2}, {4, -3}},
+    {{4, 1}, {4, 0}, {4, -1}, {4, -2}},
     {{3, 0}, {4, 0}, {5, 0}, {6, 0}},
 };
 
@@ -49,11 +49,13 @@ const int T[][4][2] = {
 
 Tetromino::Tetromino(Window* window, Image *image)
     : window(window), image(image) {
+    srand(time(NULL));    
 }
 
 Tetromino::Tetromino(Window* window, Image *image, char type)
     : window(window), image(image) {
     setType(type);
+    srand(time(NULL));
 }
 
 bool Tetromino::setType(char type) {
@@ -64,7 +66,13 @@ bool Tetromino::setType(char type) {
     for (int i = 0; i < 4; i++) {
         this->coordinates[i][0] = getTypeCoordinates(type, turn_index, i, 0);
         this->coordinates[i][1] = getTypeCoordinates(type, turn_index, i, 1);
+        if (this->coordinates[i][1] >= 0 && 
+            isValid(this->coordinates[i][0], this->coordinates[i][1]) == 2) {
+            return false;
+        }
     }
+
+    return true;
 }
 
 int Tetromino::rotate() {
@@ -257,10 +265,15 @@ int Tetromino::isValid(int x, int y) {
     return 0;
 }
 
-void Tetromino::newTetromino() {
+bool Tetromino::newTetromino() {
     static char tetromino_type[] = {'S', 'Z', 'L', 'J', 'I', 'O', 'T'};
     int type_count = sizeof(tetromino_type) / sizeof(char);
-    srand(time(NULL));
     int type_index = rand() % type_count;
-    setType(tetromino_type[type_index]);
+    if (setType(tetromino_type[type_index])) {
+        Image new_image = Image(*this->image);
+        flashScreen(&new_image);
+        return true;
+    } else {
+        return false;
+    }
 }

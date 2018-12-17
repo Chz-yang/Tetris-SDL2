@@ -11,7 +11,7 @@ using std::cout;
 using std::endl;
 using std::vector;
 
-bool isGameOver();
+void gameOver(Image* image, Window* window);
 bool eliminateLine(Image* image, Window* window);
 void imageColMoveDown(Image* image, int x, int y);
 
@@ -50,10 +50,15 @@ int main(int argc, char const* argv[]) {
 
         if (flag == 2) {
             eliminateLine(&image, &window);
-            tetromino.newTetromino();
+            if (tetromino.newTetromino() == false) {
+                gameOver(&image, &window);
+                quit = true;
+            }
 
-            while (SDL_PollEvent(&my_event))
-                ; // clear event queue
+            // clear event queue
+            while (SDL_PollEvent(&my_event)) {
+                ;
+            }
 
             flag = 0;
             count = 0;
@@ -142,13 +147,40 @@ void imageColMoveDown(Image* image, int x, int y) {
     (*image)[x][0] = kBlack_color;
 }
 
-bool isGameOver(const RGB imgage[][kXDim]) {
+void gameOver(Image* image, Window* window) {
     /* 方块触顶，游戏结束。 */
-    for (int y = 0; y < kYDim; y++) {
-        if (imgage[y][0] != kBlack_color) {
-            return true;
+    static int direction[][2] = {{1, 0}, {0, 1}, {-1, 0}, {0, -1}};
+    cout << "Game Over!\n";
+    int x = -1, y = 0;
+    int direction_index = 0;
+    int x_left = 0, x_right = kXDim - 1, y_up = 1, y_down = kYDim - 1;
+    for (int i = 0; i < kXDim * kYDim; i++) {
+        x += direction[direction_index][0];
+        y += direction[direction_index][1];
+        (*image)[x][y] = kBlue_color;
+        window->draw(*image);
+        usleep(1000);
+
+        if (direction_index == 0 && x == x_right) {
+            direction_index = (direction_index + 1) % 4;
+            x_right -= 1;
+        } else if (direction_index == 1 && y == y_down) {
+            direction_index = (direction_index + 1) % 4;
+            y_down -= 1;
+        } else if (direction_index == 2 && x == x_left) {
+            direction_index = (direction_index + 1) % 4;
+            x_left += 1;
+        } else if (direction_index == 3 && y == y_up) {
+            direction_index = (direction_index + 1) % 4;
+            y_up += 1;
         }
     }
 
-    return false;
+    Image black_background;
+    for (int i = 0; i < 6; i++) {
+        window->draw(*image);
+        usleep(100 * 1000);
+        window->draw(black_background);
+        usleep(100 * 1000);
+    }
 }
