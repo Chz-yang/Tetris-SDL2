@@ -17,5 +17,6 @@ struct RGB {
 const RGB kWhite_color = RGB(255, 255, 255);
 const RGB kBlack_color = RGB(0, 0, 0);
 const RGB kBlue_color = RGB(0, 0, 255);
+const RGB kYellow_color = RGB(255, 255, 0);
 
 #endif

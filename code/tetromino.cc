@@ -114,7 +114,7 @@ int Tetromino::rotate() {
 }
 
 int Tetromino::move(string key) {
-    int flag = 0;
+    int flag = -1;
     if (key == "Right") {
         // move right
         flag = moveRight();

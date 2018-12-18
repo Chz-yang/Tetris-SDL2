@@ -2,7 +2,7 @@ cc = g++
 objects = main.o bmp.o window.o tetromino.o image.o
 
 a.out : $(objects)
-	$(cc) -o $@ $(objects) -lSDL2
+	$(cc) -o $@ $(objects) -lSDL2 -lSDL2_ttf
 
 main.o : main.cc RGB.hpp bmp.hpp window.hpp
 	$(cc) -g -std=c++11 -c main.cc
@@ -13,7 +13,7 @@ bmp.o : bmp.cc bmp.hpp RGB.hpp
 window.o : window.cc window.hpp RGB.hpp
 	$(cc) -g -std=c++11 -c window.cc
 
-tetromino.o : tetromino.cc tetromino.hpp RGB.hpp
+tetromino.o : tetromino.cc tetromino.hpp RGB.hpp window.hpp window.cc
 	$(cc) -g -std=c++11 -c tetromino.cc
 
 image.o : image.cc image.hpp RGB.hpp

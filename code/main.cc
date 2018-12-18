@@ -6,14 +6,16 @@
 #include <SDL2/SDL.h>
 #include <unistd.h>
 #include <vector>
+#include <set>
 #include <iostream>
 using std::cout;
 using std::endl;
 using std::vector;
 
 void gameOver(Image* image, Window* window);
-bool eliminateLine(Image* image, Window* window);
+bool eliminateLine(Image* image, Window* window, int &count);
 void imageColMoveDown(Image* image, int x, int y);
+void updateScore(Window* window, int count);
 
 int main(int argc, char const* argv[]) {
     Image image;
@@ -25,7 +27,18 @@ int main(int argc, char const* argv[]) {
     int flag = 0;
     Tetromino tetromino(&window, &image);
     tetromino.newTetromino();
+    updateScore(&window, 0);
 
+    std::set<string> valid_key_set;
+    valid_key_set.insert("Left");
+    valid_key_set.insert("Right");
+    valid_key_set.insert("Down");
+    valid_key_set.insert("Space");
+    valid_key_set.insert("Return");
+
+    bool invalid_key_down = false;
+    bool pause_flag = false;
+    string key;
     while (!quit) {
         if (SDL_PollEvent(&my_event)) {
             switch (my_event.type) {
@@ -34,11 +47,33 @@ int main(int argc, char const* argv[]) {
                     break;
 
                 case SDL_KEYDOWN:
-                    string key = SDL_GetKeyName(my_event.key.keysym.sym);
-                    flag = tetromino.move(key);
+                    if (invalid_key_down) {break;}
+                    key = SDL_GetKeyName(my_event.key.keysym.sym);
+
+                    if (key == "Space" || 
+                        valid_key_set.find(key) == valid_key_set.end()) {
+                        invalid_key_down = true;
+
+                    } else if (key == "Return") {
+                        pause_flag = !pause_flag;
+                        if (pause_flag == true) {
+                            SDL_Color color = {255, 0, 0};
+                            window.write("\"Pause!\"", 128, 125, 300, color);
+                        }
+                    }
+
+                    if (pause_flag == false) {
+                        flag = tetromino.move(key);
+                    }
+                    break;
+
+                case SDL_KEYUP:
+                    invalid_key_down = false;
                     break;
             }
         }
+
+        if (pause_flag) {continue;} 
 
         usleep(5 * 1000);
         count++;
@@ -49,7 +84,10 @@ int main(int argc, char const* argv[]) {
         }
 
         if (flag == 2) {
-            eliminateLine(&image, &window);
+            int count = 0;
+            eliminateLine(&image, &window, count);
+            if (count > 0) {updateScore(&window, count);}
+
             if (tetromino.newTetromino() == false) {
                 gameOver(&image, &window);
                 quit = true;
@@ -68,7 +106,13 @@ int main(int argc, char const* argv[]) {
     return 0;
 }
 
-bool eliminateLine(Image* image, Window* window) {
+void updateScore(Window* window, int count) {
+    static int score = 0;
+    score += pow(2, count - 1);
+    window->write(std::to_string(score));
+}
+
+bool eliminateLine(Image* image, Window* window, int &count) {
     int line_index = -1;
 
     for (int y = kYDim - 1; y >= 0; y--) {
@@ -84,6 +128,7 @@ bool eliminateLine(Image* image, Window* window) {
         if (flag) {
             // 从屏幕底到上，找到第一个可以被消除的行
             line_index = y;
+            count += 1;
             break;
         } else if (flag == false && y == 0) {
             return false;
@@ -106,7 +151,7 @@ bool eliminateLine(Image* image, Window* window) {
     window->draw(*image); // 刷新一次屏幕
     usleep(400 * 1000);
 
-    eliminateLine(image, window);
+    eliminateLine(image, window, count);
 
     vector<int> can_move_down_x_vector;
     for (int x = 0; x < kXDim; x++) {
@@ -135,7 +180,7 @@ bool eliminateLine(Image* image, Window* window) {
         line_index += 1;
     }
 
-    return eliminateLine(image, window);
+    return eliminateLine(image, window, count);
 }
 
 void imageColMoveDown(Image* image, int x, int y) {
