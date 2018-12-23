@@ -141,7 +141,7 @@ bool eliminateLine(Image* image, Window* window, int &count) {
     }
 
     window->draw(*image); // 刷新一次屏幕
-    usleep(100 * 1000);
+    usleep(50 * 1000);
 
     for (int x = 0; x < kXDim; x++) {
         // 把(line_index - 1)该行及该行以上的方块往下移动一行
@@ -149,7 +149,7 @@ bool eliminateLine(Image* image, Window* window, int &count) {
     }
 
     window->draw(*image); // 刷新一次屏幕
-    usleep(400 * 1000);
+    usleep(200 * 1000);
 
     eliminateLine(image, window, count);
 
@@ -175,7 +175,7 @@ bool eliminateLine(Image* image, Window* window, int &count) {
 
         if (can_move_down_x_vector.empty() == false) {
             window->draw(*image);
-            usleep(500 * 1000);
+            usleep(250 * 1000);
         }
         line_index += 1;
     }

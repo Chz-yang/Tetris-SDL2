@@ -71,6 +71,7 @@ bool Window::write(string text, int font_size, int x, int y, SDL_Color color) {
     }
     SDL_RenderCopy(renderer, texture, NULL, &font_rect);
     SDL_RenderPresent(renderer);
+    SDL_RenderPresent(renderer);
     SDL_FreeSurface(surface);
     SDL_DestroyTexture(texture);
     TTF_CloseFont(font);
